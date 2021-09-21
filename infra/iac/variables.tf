@@ -15,3 +15,7 @@ variable "zone" {
 variable "dns_managed_zone_name" {
   type    = string  
 }
+
+variable "dns_managed_zone_name_2" {
+  type    = string  
+}

@@ -1,24 +1,24 @@
-module "db_schema_dev" {
+module "db_schema_dev2" {
   source = "./modules/mysql_schema"
 
   project                = var.project
-  name                   = "${var.project}-db-dev"
+  name                   = "${var.project}-db-dev-2"
   database_instance_name = google_sql_database_instance.db.name
 }
 
-output "dev_db_schema" {
-  value = module.db_schema_dev.credentials
+output "dev_db_schema2" {
+  value = module.db_schema_dev2.credentials
 }
 
-module "api_dev" {
+module "api_dev2" {
   source = "./modules/cloud_run"
 
   project               = var.project
   region                = var.region
-  name                  = "api-dev"
+  name                  = "api-dev2"
   image                 = "gcr.io/cantodarua/api:bb7e097da48f33173b7676f0fed6aff9223a49d4"
-  url                   = "api-dev.cantodaruaemergencial.com.br"
-  dns_managed_zone_name = var.dns_managed_zone_name
+  url                   = "api-dev.cantodarua.com.br"
+  dns_managed_zone_name = var.dns_managed_zone_name_2
 
   env_vars = [
     {
@@ -27,42 +27,42 @@ module "api_dev" {
     },
     {
       name  = "DATABASE_NAME"
-      value = module.db_schema_dev.credentials.name
+      value = module.db_schema_dev2.credentials.name
     },
     {
       name  = "DATABASE_USERNAME"
-      value = module.db_schema_dev.credentials.user
+      value = module.db_schema_dev2.credentials.user
     },
     {
       name  = "DATABASE_PASSWORD"
-      value = module.db_schema_dev.credentials.pass
+      value = module.db_schema_dev2.credentials.pass
     }
   ]
 }
 
-output "dev_api" {
-  value = module.api_dev.urls
+output "dev_api2" {
+  value = module.api_dev2.urls
 }
 
-module "app_dev" {
+module "app_dev2" {
   source = "./modules/cloud_run"
 
   project               = var.project
   region                = var.region
-  name                  = "app-dev"
+  name                  = "app-dev2"
   image                 = "gcr.io/cantodarua/app:e351d30f2a50b7d2c35b8e72eaedb01e776c6bd8"
-  url                   = "dev.cantodaruaemergencial.com.br"
-  dns_managed_zone_name = var.dns_managed_zone_name
+  url                   = "dev.cantodarua.com.br"
+  dns_managed_zone_name = var.dns_managed_zone_name_2
   container_port        = 3000
 
   env_vars = [
     {
       name  = "NEXT_PUBLIC_STRAPI_API_URL"
-      value = module.api_dev.urls.public_url
+      value = module.api_dev2.urls.public_url
     }
   ]
 }
 
-output "dev_app" {
-  value = module.app_dev.urls
+output "dev_app2" {
+  value = module.app_dev2.urls
 }
