@@ -1,0 +1,26 @@
+{
+  "kind": "collectionType",
+  "collectionName": "receptions",
+  "info": {
+    "name": "Reception"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "person": {
+      "model": "person"
+    },
+    "initiative": {
+      "model": "initiative"
+    },
+    "Observation": {
+      "type": "richtext"
+    },
+    "ReceptionDate": {
+      "type": "date"
+    }
+  }
+}

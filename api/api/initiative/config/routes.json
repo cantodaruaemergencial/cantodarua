@@ -1,0 +1,52 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/initiatives",
+      "handler": "initiative.find",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/initiatives/count",
+      "handler": "initiative.count",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/initiatives/:id",
+      "handler": "initiative.findOne",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/initiatives",
+      "handler": "initiative.create",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/initiatives/:id",
+      "handler": "initiative.update",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/initiatives/:id",
+      "handler": "initiative.delete",
+      "config": {
+        "policies": []
+      }
+    }
+  ]
+}

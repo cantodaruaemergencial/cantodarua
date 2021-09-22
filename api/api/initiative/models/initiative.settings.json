@@ -1,0 +1,20 @@
+{
+  "kind": "collectionType",
+  "collectionName": "initiatives",
+  "info": {
+    "name": "Initiative"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "InitiativeName": {
+      "type": "string"
+    },
+    "Address": {
+      "type": "richtext"
+    }
+  }
+}
