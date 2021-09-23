@@ -8,7 +8,7 @@ import { useRouter } from 'next/dist/client/router';
 import { ReactElement, useState } from 'react';
 import styled from 'styled-components';
 
-import Card from './Card';
+import Card from '../../Card';
 
 import { useAuthMethods, useAuthState } from '#/packages/auth/auth-context';
 
@@ -53,7 +53,7 @@ const LoginPage = (): ReactElement => {
   const router = useRouter();
 
   if (isLogged) {
-    router.replace('/dashboard');
+    router.replace('/pessoas');
   }
 
   return (
