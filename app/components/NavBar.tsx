@@ -93,15 +93,6 @@ const ButtonAppBar = (): React.ReactElement => {
           </Link>
 
           <NavIconButton>
-            <Link href="/dashboard">
-              <DashboardRounded />
-            </Link>
-          </NavIconButton>
-          <NavButton>
-            <Link href="/dashboard">Dashboard</Link>
-          </NavButton>
-
-          <NavIconButton>
             <Link href="/pessoas">
               <PersonRounded />
             </Link>
@@ -110,23 +101,6 @@ const ButtonAppBar = (): React.ReactElement => {
             <Link href="/pessoas">Pessoas</Link>
           </NavButton>
 
-          <NavIconButton>
-            <Link href="/servicos">
-              <TransferWithinAStationRounded />
-            </Link>
-          </NavIconButton>
-          <NavButton>
-            <Link href="/servicos">Serviços</Link>
-          </NavButton>
-
-          <NavIconButton>
-            <Link href="/relatorios">
-              <TransferWithinAStationRounded />
-            </Link>
-          </NavIconButton>
-          <NavButton>
-            <Link href="/relatorios">Relatórios</Link>
-          </NavButton>
         </Links>
       </Toolbar>
       <FloatingBox>
