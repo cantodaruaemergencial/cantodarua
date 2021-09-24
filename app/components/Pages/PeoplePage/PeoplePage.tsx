@@ -23,6 +23,7 @@ import PageHeader from '../../PageHeader';
 import Value from './../../Value';
 import PersonCard from './PersonCard';
 import { useRouter } from 'next/router';
+import ReceptionModal from '#/components/ReceptionModal';
 
 const Container = styled(MuiContainer)`
   && {
@@ -97,6 +98,7 @@ const PeoplePage = (): ReactElement => {
   const [todayEntrances, setTodayEntrances] = useState<number | null>();
   const [todayRegisters, setTodayRegisters] = useState<number | null>();
   const [isWaitingRequest, setIsWaitingRequest] = useState(false);
+  const [openReceptionModal, setOpenReceptionModal] = useState<boolean>(false);
 
   const [
     confirmationModal,
@@ -122,8 +124,9 @@ const PeoplePage = (): ReactElement => {
     person: BasePerson,
     callback: (entrance: Entrance) => void,
   ) => {
+    setOpenReceptionModal(true);
+    /*
     const message = `Deseja confirmar a entrada de **${person.Name} (${person.CardNumber})**?`;
-
     setConfirmationModal({
       ...confirmationModal,
       data: {
@@ -132,7 +135,7 @@ const PeoplePage = (): ReactElement => {
       },
       message,
       open: true,
-    });
+    });*/
   };
 
   const handleCloseConfirmationModal = () => {
@@ -207,19 +210,10 @@ const PeoplePage = (): ReactElement => {
           />
         </ListWrapper>
       </ListContainer>
-      <ConfirmationModal
-        {...confirmationModal}
-        handleClose={handleCloseConfirmationModal}
-        actions={
-          <Button
-            autoFocus
-            onClick={confirmEntrance}
-            color="primary"
-            disabled={isWaitingRequest}
-          >
-            Confirmar
-          </Button>
-        }
+
+      <ReceptionModal
+        open={openReceptionModal}
+        handleClose={() => setOpenReceptionModal(false)}
       />
     </Container>
   );
