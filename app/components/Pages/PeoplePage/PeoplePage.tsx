@@ -1,6 +1,7 @@
 import Card from '#/components/Card';
 import ConfirmationModal from '#/components/ConfirmationModal';
 import SearchField from '#/components/SearchField';
+import AutocompleteInput from '#/components/AutocompleteInput';
 import DashboardService from '#/services/DashboardService';
 import EntrancesService from '#/services/EntrancesService';
 import PeopleService from '#/services/PeopleService';
@@ -23,6 +24,9 @@ import PageHeader from '../../PageHeader';
 import Value from './../../Value';
 import PersonCard from './PersonCard';
 import { useRouter } from 'next/router';
+import InitiativesService from '#/services/InitiativesService';
+import { Initiative, FetchInitiatives } from '#/types/Initiatives';
+import ReceptionsService from '#/services/ReceptionsService';
 
 const Container = styled(MuiContainer)`
   && {
@@ -97,6 +101,10 @@ const PeoplePage = (): ReactElement => {
   const [todayEntrances, setTodayEntrances] = useState<number | null>();
   const [todayRegisters, setTodayRegisters] = useState<number | null>();
   const [isWaitingRequest, setIsWaitingRequest] = useState(false);
+  const [allInitiatives, setAllInitiaves] = useState<Initiative[] | []>([]);
+  const [initiativeChoosen, setInitiativeChoosen] = useState<
+    string | undefined
+  >(undefined);
 
   const [
     confirmationModal,
@@ -108,6 +116,20 @@ const PeoplePage = (): ReactElement => {
 
   const fetchPeople: InfiniteListFetchRows = (startIndex, limit, filter) =>
     PeopleService.get(startIndex, limit, filter);
+
+  const fetchInitiatives: FetchInitiatives = () =>
+    InitiativesService.getInitiatives();
+
+  const fetchPeopleByInitiative: InfiniteListFetchRows = (
+    startIndex,
+    limit,
+    initiativeName,
+  ) =>
+    ReceptionsService.getPeopleByInitiativeName(
+      startIndex,
+      limit,
+      initiativeName,
+    );
 
   const fetchDashboardToday = () =>
     DashboardService.getToday().then(({ entrances, registers }) => {
@@ -169,6 +191,9 @@ const PeoplePage = (): ReactElement => {
 
   useEffect(() => {
     fetchDashboardToday();
+    fetchInitiatives().then((result) => {
+      setAllInitiaves(result);
+    });
   }, []);
 
   const rowRenderer: InfiniteListRowRenderer = (item, isRowLoaded, props) => (
@@ -180,12 +205,26 @@ const PeoplePage = (): ReactElement => {
     />
   );
 
+  const handleChooseInitiave = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.currentTarget.innerText != '') {
+      setInitiativeChoosen(event.currentTarget.innerText);
+    } else {
+      setInitiativeChoosen(undefined);
+    }
+  };
+
   return (
     <Container>
       <Header title="Pessoas" sideComponent={renderControls()} />
       <ListContainer>
         <SearchBar>
           <Search placeholder="Nome ou cartão" onFilter={onChangeFilter} />
+          <AutocompleteInput
+            label="Nome iniciativa"
+            options={allInitiatives}
+            value={initiativeChoosen}
+            onChange={handleChooseInitiave}
+          />
           <DashboardToday
             value={todayEntrances != null ? todayEntrances : '-'}
             label="entradas hoje"
@@ -201,9 +240,11 @@ const PeoplePage = (): ReactElement => {
         </SearchBar>
         <ListWrapper>
           <List
-            fetchRows={fetchPeople}
+            fetchRows={
+              initiativeChoosen ? fetchPeopleByInitiative : fetchPeople
+            }
             rowRenderer={rowRenderer}
-            filter={selectedFilter}
+            filter={initiativeChoosen ? initiativeChoosen : selectedFilter}
           />
         </ListWrapper>
       </ListContainer>
