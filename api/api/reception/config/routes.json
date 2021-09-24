@@ -1,52 +1,60 @@
 {
-  "routes": [
-    {
-      "method": "GET",
-      "path": "/receptions",
-      "handler": "reception.find",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "GET",
-      "path": "/receptions/count",
-      "handler": "reception.count",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "GET",
-      "path": "/receptions/:id",
-      "handler": "reception.findOne",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "POST",
-      "path": "/receptions",
-      "handler": "reception.create",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "PUT",
-      "path": "/receptions/:id",
-      "handler": "reception.update",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "DELETE",
-      "path": "/receptions/:id",
-      "handler": "reception.delete",
-      "config": {
-        "policies": []
-      }
-    }
-  ]
+	"routes": [
+		{
+			"method": "GET",
+			"path": "/receptions",
+			"handler": "reception.find",
+			"config": {
+				"policies": []
+			}
+		},
+		{
+			"method": "GET",
+			"path": "/receptionsByInitiative",
+			"handler": "reception.findByInitiative",
+			"config": {
+				"policies": []
+			}
+		},
+		{
+			"method": "GET",
+			"path": "/receptions/count",
+			"handler": "reception.count",
+			"config": {
+				"policies": []
+			}
+		},
+		{
+			"method": "GET",
+			"path": "/receptions/:id",
+			"handler": "reception.findOne",
+			"config": {
+				"policies": []
+			}
+		},
+		{
+			"method": "POST",
+			"path": "/receptions",
+			"handler": "reception.create",
+			"config": {
+				"policies": []
+			}
+		},
+		{
+			"method": "PUT",
+			"path": "/receptions/:id",
+			"handler": "reception.update",
+			"config": {
+				"policies": []
+			}
+		},
+		{
+			"method": "DELETE",
+			"path": "/receptions/:id",
+			"handler": "reception.delete",
+			"config": {
+				"policies": []
+			}
+		}
+	]
 }
