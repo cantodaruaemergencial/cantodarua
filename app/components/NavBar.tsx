@@ -7,12 +7,7 @@ import {
   IconButton,
   withTheme,
 } from '@material-ui/core';
-import {
-  DashboardRounded,
-  ExitToAppRounded,
-  PersonRounded,
-  TransferWithinAStationRounded,
-} from '@material-ui/icons';
+import { ExitToAppRounded, PersonRounded } from '@material-ui/icons';
 import Link from 'next/link';
 import styled from 'styled-components';
 
@@ -88,7 +83,7 @@ const ButtonAppBar = (): React.ReactElement => {
     <AppBar position="static" color="default">
       <Toolbar>
         <Links>
-          <Link href="/dashboard">
+          <Link href="/pessoas">
             <Logo alt="Canto da Rua" src="/images/logo.png" />
           </Link>
 
@@ -100,7 +95,6 @@ const ButtonAppBar = (): React.ReactElement => {
           <NavButton>
             <Link href="/pessoas">Pessoas</Link>
           </NavButton>
-
         </Links>
       </Toolbar>
       <FloatingBox>

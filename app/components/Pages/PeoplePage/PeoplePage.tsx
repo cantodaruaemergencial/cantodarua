@@ -205,9 +205,9 @@ const PeoplePage = (): ReactElement => {
     />
   );
 
-  const handleChooseInitiave = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.currentTarget.innerText != '') {
-      setInitiativeChoosen(event.currentTarget.innerText);
+  const handleChooseInitiave = (event: Initiative | null) => {
+    if (event) {
+      setInitiativeChoosen(event.InitiativeName);
     } else {
       setInitiativeChoosen(undefined);
     }

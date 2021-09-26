@@ -7,10 +7,10 @@ interface SelectPropsInterface {
   label: string;
   options: Initiative[];
   value?: string | undefined;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (value: Initiative | null) => void;
 }
 
-const AutocompleteComponent = styled(Autocomplete)`
+const AutocompleteComponent: typeof Autocomplete = styled(Autocomplete)`
   flex: 1;
   max-width: 250px;
 `;
@@ -28,11 +28,10 @@ const AutocompleteInput = ({
   return (
     <AutocompleteComponent
       {...defaultProps}
-      clearOnEscape
-      onChange={(event: React.ChangeEvent<HTMLInputElement>) => onChange(event)}
+      autoHighlight
+      onChange={(_event: any, value: Initiative | null) => onChange(value)}
       noOptionsText="Não encontrado"
       loadingText="Carregando"
-      id="combo-box-demo"
       renderInput={(params) => <TextField {...params} label={label} />}
     />
   );
