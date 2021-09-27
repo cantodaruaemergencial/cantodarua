@@ -1,5 +1,4 @@
 import Card from '#/components/Card';
-import ConfirmationModal from '#/components/ConfirmationModal';
 import SearchField from '#/components/SearchField';
 import DashboardService from '#/services/DashboardService';
 import EntrancesService from '#/services/EntrancesService';
@@ -99,6 +98,10 @@ const PeoplePage = (): ReactElement => {
   const [todayRegisters, setTodayRegisters] = useState<number | null>();
   const [isWaitingRequest, setIsWaitingRequest] = useState(false);
   const [openReceptionModal, setOpenReceptionModal] = useState<boolean>(false);
+  const [
+    personReceptionModal,
+    setPersonReceptionModal,
+  ] = useState<BasePerson | null>(null);
 
   const [
     confirmationModal,
@@ -124,23 +127,28 @@ const PeoplePage = (): ReactElement => {
     person: BasePerson,
     callback: (entrance: Entrance) => void,
   ) => {
+    setPersonReceptionModal(person);
     setOpenReceptionModal(true);
-    /*
-    const message = `Deseja confirmar a entrada de **${person.Name} (${person.CardNumber})**?`;
-    setConfirmationModal({
-      ...confirmationModal,
-      data: {
-        person,
-        callback,
-      },
-      message,
-      open: true,
-    });*/
   };
 
   const handleCloseConfirmationModal = () => {
     setConfirmationModal({ ...confirmationModal, open: false });
     document.getElementById('search-field')?.focus();
+  };
+
+  const handleCloseReceptionModal = () => {
+    setPersonReceptionModal(null);
+    setOpenReceptionModal(false);
+    document.getElementById('search-field')?.focus();
+  };
+
+  const confirmReception = (
+    person: BasePerson,
+    date: moment.Moment,
+    description: string,
+  ) => {
+    setIsWaitingRequest(true);
+    setIsWaitingRequest(false);
   };
 
   const confirmEntrance = () => {
@@ -211,10 +219,14 @@ const PeoplePage = (): ReactElement => {
         </ListWrapper>
       </ListContainer>
 
-      <ReceptionModal
-        open={openReceptionModal}
-        handleClose={() => setOpenReceptionModal(false)}
-      />
+      {openReceptionModal && (
+        <ReceptionModal
+          open={openReceptionModal}
+          handleClose={handleCloseReceptionModal}
+          person={personReceptionModal}
+          confirmReception={confirmReception}
+        />
+      )}
     </Container>
   );
 };

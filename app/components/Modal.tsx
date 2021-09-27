@@ -18,6 +18,7 @@ interface Props {
   handleClose: () => void;
   actions?: ReactNode;
   content?: ReactNode;
+  width?: string;
 }
 
 const useStyles = makeStyles((width?: string) =>
@@ -39,14 +40,17 @@ const Modal = ({
   handleClose,
   actions,
   content,
+  width,
 }: Props): ReactElement => {
-  const styles = useStyles();
+  const styles = useStyles(width);
   return (
     <Dialog open={open} onClose={handleClose} classes={{ paper: styles.modal }}>
       <DialogTitle>
         <Box display="flex" alignItems="center">
           <Box flexGrow={1}>
-            <Typography variant="h3">{title}</Typography>
+            <Typography component="h2" variant="h3">
+              {title}
+            </Typography>
           </Box>
           <Box>
             <IconButton onClick={handleClose}>
