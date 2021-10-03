@@ -1,10 +1,7 @@
 import Card from '#/components/Card';
 import SearchField from '#/components/SearchField';
 import DashboardService from '#/services/DashboardService';
-import EntrancesService from '#/services/EntrancesService';
 import PeopleService from '#/services/PeopleService';
-import { ConfirmationModal as ConfirmationModalType } from '#/types/ConfirmationModal';
-import { Entrance } from '#/types/Entrance';
 import { BasePerson } from '#/types/People';
 import { Shadows } from '#/utils/theme';
 import { Box, Button, Container as MuiContainer } from '@material-ui/core';
@@ -23,6 +20,7 @@ import Value from './../../Value';
 import PersonCard from './PersonCard';
 import { useRouter } from 'next/router';
 import ReceptionModal from '#/components/ReceptionModal';
+import ReceptionService from '#/services/ReceptionService';
 
 const Container = styled(MuiContainer)`
   && {
@@ -96,20 +94,11 @@ const PeoplePage = (): ReactElement => {
 
   const [todayEntrances, setTodayEntrances] = useState<number | null>();
   const [todayRegisters, setTodayRegisters] = useState<number | null>();
-  const [isWaitingRequest, setIsWaitingRequest] = useState(false);
   const [openReceptionModal, setOpenReceptionModal] = useState<boolean>(false);
   const [
     personReceptionModal,
     setPersonReceptionModal,
   ] = useState<BasePerson | null>(null);
-
-  const [
-    confirmationModal,
-    setConfirmationModal,
-  ] = useState<ConfirmationModalType>({
-    title: 'Confirmar entrada',
-    open: false,
-  });
 
   const fetchPeople: InfiniteListFetchRows = (startIndex, limit, filter) =>
     PeopleService.get(startIndex, limit, filter);
@@ -123,18 +112,16 @@ const PeoplePage = (): ReactElement => {
   const onChangeFilter = (value?: string) =>
     setSelectedFilter({ nameOrCardNumber: value });
 
-  const addNewEntrance = (
-    person: BasePerson,
-    callback: (entrance: Entrance) => void,
-  ) => {
+  const addNewEntrance = (person: BasePerson) => {
     setPersonReceptionModal(person);
     setOpenReceptionModal(true);
   };
 
+  /*
   const handleCloseConfirmationModal = () => {
     setConfirmationModal({ ...confirmationModal, open: false });
     document.getElementById('search-field')?.focus();
-  };
+  };*/
 
   const handleCloseReceptionModal = () => {
     setPersonReceptionModal(null);
@@ -145,29 +132,18 @@ const PeoplePage = (): ReactElement => {
   const confirmReception = (
     person: BasePerson,
     date: moment.Moment,
-    description: string,
+    observation: string,
   ) => {
-    setIsWaitingRequest(true);
-    setIsWaitingRequest(false);
-  };
-
-  const confirmEntrance = () => {
-    setIsWaitingRequest(true);
-    EntrancesService.post(confirmationModal.data.person).then(
-      ({ status, data }) => {
-        if (status === 200) {
-          handleCloseConfirmationModal();
-          confirmationModal.data.callback(data);
-          fetchDashboardToday();
-          setIsWaitingRequest(false);
-        } else {
-          enqueueSnackbar('Ocorreu um erro ao confirmar a entrada.', {
-            variant: 'error',
-          });
-          setIsWaitingRequest(false);
-        }
-      },
-    );
+    ReceptionService.post(person, date, observation).then(({ status }) => {
+      if (status === 200) {
+        fetchDashboardToday();
+        handleCloseReceptionModal();
+      } else {
+        enqueueSnackbar('Ocorreu um erro ao confirmar uma recepção', {
+          variant: 'error',
+        });
+      }
+    });
   };
 
   const renderControls = () => (

@@ -45,7 +45,7 @@ const ReceptionModal = ({
     moment(),
   );
   const [dateMax] = useState<MaterialUiPickersDate>(moment());
-  const [description, setDescription] = useState<string>('');
+  const [observation, setObservation] = useState<string>('');
   const styles = useStyles();
 
   const selectDateNotIsValid = Boolean(
@@ -84,8 +84,8 @@ const ReceptionModal = ({
           multiline
           rows={4}
           style={{ width: '100%' }}
-          value={description}
-          onChange={(e) => setDescription(e.currentTarget.value)}
+          value={observation}
+          onChange={(e) => setObservation(e.currentTarget.value)}
           className={styles.descriptionReception}
           variant="outlined"
         />
@@ -97,8 +97,7 @@ const ReceptionModal = ({
     <Button
       onClick={() => {
         if (person !== null && selectedDate !== null)
-          confirmReception(person, selectedDate, description);
-        handleClose();
+          confirmReception(person, selectedDate, observation);
       }}
       variant="outlined"
       disabled={selectDateNotIsValid}
