@@ -44,7 +44,7 @@ const ServicesPage = (): ReactElement => {
 
   return (
     <Container>
-      <Header title="Serviços" sideComponent={renderControls()} />
+      <Header title="Servicos" sideComponent={renderControls()} />
       <Services {...services} />
     </Container>
   );

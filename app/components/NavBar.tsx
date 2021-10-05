@@ -127,6 +127,16 @@ const ButtonAppBar = (): React.ReactElement => {
           <NavButton>
             <Link href="/relatorios">Relatórios</Link>
           </NavButton>
+
+          <NavIconButton>
+            <Link href="/iniciativas">
+              <PersonRounded />
+            </Link>
+          </NavIconButton>
+          <NavButton>
+            <Link href="/iniciativas">Iniciativas</Link>
+          </NavButton>
+
         </Links>
       </Toolbar>
       <FloatingBox>
