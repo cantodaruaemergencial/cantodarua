@@ -13,9 +13,7 @@ import Link from 'next/link';
 import styled from 'styled-components';
 
 import { useAuthMethods } from '#/packages/auth/auth-context';
-import { useContext, useEffect, useState } from 'react';
-import { FetchInitiatives, Initiative } from '#/types/Initiatives';
-import InitiativesService from '#/services/InitiativesService';
+import { useContext, useEffect } from 'react';
 import { InfiniteListFetchRows } from './InfiniteList';
 import PeopleService from '#/services/PeopleService';
 import { InitiativesContext } from '#/contexts/InitiativesContext';
@@ -89,28 +87,22 @@ const Flag = withTheme(styled.img`
 const ButtonAppBar = (): React.ReactElement => {
   const { logout } = useAuthMethods();
 
-  const [allInitiatives, setAllInitiaves] = useState<Initiative[] | []>([]);
-
-  const { setChoosenInitiative, choosenInitiative } = useContext(
-    InitiativesContext,
-  );
-
-  const fetchInitiatives: FetchInitiatives = () =>
-    InitiativesService.getInitiatives();
-
-  useEffect(() => {
-    fetchInitiatives().then((result) => {
-      setAllInitiaves(result);
-      fetchPeople(0, 7, {
-        personName: null,
-        initiativeName: result[0].InitiativeName,
-      });
-      setChoosenInitiative(result[0].InitiativeName);
-    });
-  }, []);
+  const {
+    setChoosenInitiative,
+    choosenInitiative,
+    allInitiatives,
+  } = useContext(InitiativesContext);
 
   const fetchPeople: InfiniteListFetchRows = (startIndex, limit, filter) =>
     PeopleService.get(startIndex, limit, filter);
+
+  useEffect(() => {
+    fetchPeople(0, 7, {
+      personName: null,
+      initiativeName: allInitiatives[0]?.InitiativeName,
+    });
+    setChoosenInitiative(allInitiatives[0]?.InitiativeName);
+  }, [allInitiatives]);
 
   const handleChooseInitiative = (event: string | null) => {
     if (event) {
