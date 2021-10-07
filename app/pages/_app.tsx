@@ -3,6 +3,7 @@ import { SnackbarOrigin } from '@material-ui/core';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { MuiThemeProvider, withStyles } from '@material-ui/core/styles';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
+import { InitiativesProvider } from '#/contexts/InitiativesContext';
 import moment from 'moment';
 import type { AppProps } from 'next/app';
 import { SnackbarProvider } from 'notistack';
@@ -33,13 +34,15 @@ const App = ({ Component, pageProps }: AppProps): React.ReactElement => {
   return (
     <SnackbarProvider anchorOrigin={snackbarConfig}>
       <AuthProvider>
-        <MuiPickersUtilsProvider utils={MomentUtils}>
-          <MuiThemeProvider theme={DefaultTheme}>
-            <CssBaseline />
-            <GlobalCss />
-            <Component {...pageProps} />
-          </MuiThemeProvider>
-        </MuiPickersUtilsProvider>
+        <InitiativesProvider>
+          <MuiPickersUtilsProvider utils={MomentUtils}>
+            <MuiThemeProvider theme={DefaultTheme}>
+              <CssBaseline />
+              <GlobalCss />
+              <Component {...pageProps} />
+            </MuiThemeProvider>
+          </MuiPickersUtilsProvider>
+        </InitiativesProvider>
       </AuthProvider>
     </SnackbarProvider>
   );

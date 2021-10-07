@@ -1,8 +1,6 @@
 import Card from '#/components/Card';
 import ConfirmationModal from '#/components/ConfirmationModal';
 import SearchField from '#/components/SearchField';
-import AutocompleteInput from '#/components/AutocompleteInput';
-import DashboardService from '#/services/DashboardService';
 import EntrancesService from '#/services/EntrancesService';
 import PeopleService from '#/services/PeopleService';
 import { ConfirmationModal as ConfirmationModalType } from '#/types/ConfirmationModal';
@@ -14,19 +12,16 @@ import { withTheme } from '@material-ui/core/styles';
 import { AddCircleRounded } from '@material-ui/icons';
 import Link from 'next/link';
 import { useSnackbar } from 'notistack';
-import { ReactElement, useEffect, useState } from 'react';
+import { ReactElement, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import InfiniteList, {
   InfiniteListFetchRows,
   InfiniteListRowRenderer,
 } from '../../InfiniteList';
 import PageHeader from '../../PageHeader';
-import Value from './../../Value';
 import PersonCard from './PersonCard';
 import { useRouter } from 'next/router';
-import InitiativesService from '#/services/InitiativesService';
-import { Initiative, FetchInitiatives } from '#/types/Initiatives';
-import ReceptionsService from '#/services/ReceptionsService';
+import { InitiativesContext } from '#/contexts/InitiativesContext';
 
 const Container = styled(MuiContainer)`
   && {
@@ -63,10 +58,6 @@ const List = styled(InfiniteList)`
   flex: 1;
 `;
 
-const DashboardToday = styled(Value)`
-  margin-left: 1rem;
-`;
-
 const SearchBar = styled(Box)`
   display: flex;
   justify-content: space-between;
@@ -88,23 +79,21 @@ const PeoplePage = (): ReactElement => {
 
   const [selectedFilter, setSelectedFilter] = useState<{
     nameOrCardNumber?: string | null;
+    initiativeName?: string | null;
   }>({});
 
   useEffect(
     () =>
       setSelectedFilter({
         nameOrCardNumber: route.query.q as string,
+        initiativeName: choosenInitiative,
       }),
     [],
   );
 
-  const [todayEntrances, setTodayEntrances] = useState<number | null>();
-  const [todayRegisters, setTodayRegisters] = useState<number | null>();
   const [isWaitingRequest, setIsWaitingRequest] = useState(false);
-  const [allInitiatives, setAllInitiaves] = useState<Initiative[] | []>([]);
-  const [initiativeChoosen, setInitiativeChoosen] = useState<
-    string | undefined
-  >(undefined);
+
+  const { choosenInitiative } = useContext(InitiativesContext);
 
   const [
     confirmationModal,
@@ -117,28 +106,18 @@ const PeoplePage = (): ReactElement => {
   const fetchPeople: InfiniteListFetchRows = (startIndex, limit, filter) =>
     PeopleService.get(startIndex, limit, filter);
 
-  const fetchInitiatives: FetchInitiatives = () =>
-    InitiativesService.getInitiatives();
-
-  const fetchPeopleByInitiative: InfiniteListFetchRows = (
-    startIndex,
-    limit,
-    initiativeName,
-  ) =>
-    ReceptionsService.getPeopleByInitiativeName(
-      startIndex,
-      limit,
-      initiativeName,
-    );
-
-  const fetchDashboardToday = () =>
-    DashboardService.getToday().then(({ entrances, registers }) => {
-      setTodayEntrances(entrances);
-      setTodayRegisters(registers);
+  const onChangeFilter = (value?: string) =>
+    setSelectedFilter({
+      nameOrCardNumber: value,
+      initiativeName: choosenInitiative,
     });
 
-  const onChangeFilter = (value?: string) =>
-    setSelectedFilter({ nameOrCardNumber: value });
+  useEffect(() => {
+    setSelectedFilter({
+      ...selectedFilter,
+      initiativeName: choosenInitiative,
+    });
+  }, [choosenInitiative]);
 
   const addNewEntrance = (
     person: BasePerson,
@@ -169,7 +148,6 @@ const PeoplePage = (): ReactElement => {
         if (status === 200) {
           handleCloseConfirmationModal();
           confirmationModal.data.callback(data);
-          fetchDashboardToday();
           setIsWaitingRequest(false);
         } else {
           enqueueSnackbar('Ocorreu um erro ao confirmar a entrada.', {
@@ -189,13 +167,6 @@ const PeoplePage = (): ReactElement => {
     </Link>
   );
 
-  useEffect(() => {
-    fetchDashboardToday();
-    fetchInitiatives().then((result) => {
-      setAllInitiaves(result);
-    });
-  }, []);
-
   const rowRenderer: InfiniteListRowRenderer = (item, isRowLoaded, props) => (
     <PersonCard
       item={item}
@@ -205,46 +176,18 @@ const PeoplePage = (): ReactElement => {
     />
   );
 
-  const handleChooseInitiave = (event: Initiative | null) => {
-    if (event) {
-      setInitiativeChoosen(event.InitiativeName);
-    } else {
-      setInitiativeChoosen(undefined);
-    }
-  };
-
   return (
     <Container>
       <Header title="Pessoas" sideComponent={renderControls()} />
       <ListContainer>
         <SearchBar>
           <Search placeholder="Nome ou cartão" onFilter={onChangeFilter} />
-          <AutocompleteInput
-            label="Nome iniciativa"
-            options={allInitiatives}
-            value={initiativeChoosen}
-            onChange={handleChooseInitiave}
-          />
-          <DashboardToday
-            value={todayEntrances != null ? todayEntrances : '-'}
-            label="entradas hoje"
-            medium
-            alignRight
-          />
-          <DashboardToday
-            value={todayRegisters != null ? todayRegisters : '-'}
-            label="cadastros hoje"
-            medium
-            alignRight
-          />
         </SearchBar>
         <ListWrapper>
           <List
-            fetchRows={
-              initiativeChoosen ? fetchPeopleByInitiative : fetchPeople
-            }
+            fetchRows={fetchPeople}
             rowRenderer={rowRenderer}
-            filter={initiativeChoosen ? initiativeChoosen : selectedFilter}
+            filter={selectedFilter}
           />
         </ListWrapper>
       </ListContainer>

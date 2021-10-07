@@ -17,12 +17,16 @@ class PeopleService {
   static get = (
     startIndex: number,
     limit: number,
-    filter?: { nameOrCardNumber?: string },
+    filter?: {
+      nameOrCardNumber?: string;
+      initiativeName?: string;
+    },
   ) => {
     const query = {
       start: startIndex,
       limit,
-      filter: filter?.nameOrCardNumber,
+      personName: filter?.nameOrCardNumber,
+      initiativeName: filter?.initiativeName,
     };
 
     return Api.get<BasePerson[]>('people2', query)

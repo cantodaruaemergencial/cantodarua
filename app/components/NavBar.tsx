@@ -7,11 +7,18 @@ import {
   IconButton,
   withTheme,
 } from '@material-ui/core';
+import AutocompleteInput from '#/components/AutocompleteInput';
 import { ExitToAppRounded, PersonRounded } from '@material-ui/icons';
 import Link from 'next/link';
 import styled from 'styled-components';
 
 import { useAuthMethods } from '#/packages/auth/auth-context';
+import { useContext, useEffect, useState } from 'react';
+import { FetchInitiatives, Initiative } from '#/types/Initiatives';
+import InitiativesService from '#/services/InitiativesService';
+import { InfiniteListFetchRows } from './InfiniteList';
+import PeopleService from '#/services/PeopleService';
+import { InitiativesContext } from '#/contexts/InitiativesContext';
 
 const Logo = withTheme(styled(Avatar)`
   && {
@@ -30,9 +37,12 @@ const Toolbar = styled(Container)`
   && {
     padding-top: 1.5rem;
     padding-bottom: 1.5rem;
-    justify-content: space-between;
     align-items: center;
     display: flex;
+  }
+
+  @media (max-width: 600px) {
+    justify-content: flex-start;
   }
 `;
 
@@ -79,6 +89,41 @@ const Flag = withTheme(styled.img`
 const ButtonAppBar = (): React.ReactElement => {
   const { logout } = useAuthMethods();
 
+  const [allInitiatives, setAllInitiaves] = useState<Initiative[] | []>([]);
+
+  const { setChoosenInitiative, choosenInitiative } = useContext(
+    InitiativesContext,
+  );
+
+  const fetchInitiatives: FetchInitiatives = () =>
+    InitiativesService.getInitiatives();
+
+  useEffect(() => {
+    fetchInitiatives().then((result) => {
+      setAllInitiaves(result);
+      fetchPeople(0, 7, {
+        personName: null,
+        initiativeName: result[0].InitiativeName,
+      });
+      setChoosenInitiative(result[0].InitiativeName);
+    });
+  }, []);
+
+  const fetchPeople: InfiniteListFetchRows = (startIndex, limit, filter) =>
+    PeopleService.get(startIndex, limit, filter);
+
+  const handleChooseInitiative = (event: string | null) => {
+    if (event) {
+      fetchPeople(0, 7, {
+        personName: null,
+        initiativeName: event,
+      });
+      setChoosenInitiative(event);
+    } else {
+      setChoosenInitiative(undefined);
+    }
+  };
+
   return (
     <AppBar position="static" color="default">
       <Toolbar>
@@ -96,6 +141,12 @@ const ButtonAppBar = (): React.ReactElement => {
             <Link href="/pessoas">Pessoas</Link>
           </NavButton>
         </Links>
+        <AutocompleteInput
+          label="Nome iniciativa"
+          options={allInitiatives.map((item) => item.InitiativeName)}
+          value={choosenInitiative}
+          onChange={handleChooseInitiative}
+        />
       </Toolbar>
       <FloatingBox>
         <NavIconButton onClick={logout}>
