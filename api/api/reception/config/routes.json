@@ -10,14 +10,6 @@
 		},
 		{
 			"method": "GET",
-			"path": "/receptionsByInitiative",
-			"handler": "reception.findByInitiative",
-			"config": {
-				"policies": []
-			}
-		},
-		{
-			"method": "GET",
 			"path": "/receptions/count",
 			"handler": "reception.count",
 			"config": {
