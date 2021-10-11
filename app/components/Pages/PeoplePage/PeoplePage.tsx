@@ -96,14 +96,6 @@ const PeoplePage = (): ReactElement => {
 
   const [todayEntrances, setTodayEntrances] = useState<number | null>();
   const [todayRegisters, setTodayRegisters] = useState<number | null>();
-  /*const [openReceptionModal, setOpenReceptionModal] = useState<boolean>(false);
-  const [
-    personReceptionModal,
-    setPersonReceptionModal,
-  ] = useState<BasePerson | null>(null);
-  const [callBackReceptionModal, setCallBackReceptionModal] = useState<{
-    callback: (arg0: Moment) => void;
-  } | null>();*/
 
   const [
     receptionModalDate,

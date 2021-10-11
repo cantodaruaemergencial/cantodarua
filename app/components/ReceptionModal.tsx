@@ -12,6 +12,7 @@ import { KeyboardDatePicker } from '@material-ui/pickers';
 import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 import moment from 'moment';
 import { BasePerson } from '#/types/People';
+import styled from 'styled-components';
 
 interface Props {
   open: boolean;
@@ -34,6 +35,18 @@ const useStyles = makeStyles(() =>
     },
   }),
 );
+
+const SelectDateReception = styled(KeyboardDatePicker)`
+  && {
+    width: 100%;
+  }
+`;
+
+const DescriptionReception = styled(TextField)`
+  && {
+    width: 100%;
+  }
+`;
 
 const ReceptionModal = ({
   open,
@@ -64,7 +77,7 @@ const ReceptionModal = ({
         )}
       </Grid>
       <Grid item xs={12}>
-        <KeyboardDatePicker
+        <SelectDateReception
           autoOk
           variant="inline"
           inputVariant="outlined"
@@ -79,7 +92,7 @@ const ReceptionModal = ({
         />
       </Grid>
       <Grid item xs={12}>
-        <TextField
+        <DescriptionReception
           label="Descrição do acolhimento"
           multiline
           rows={4}
