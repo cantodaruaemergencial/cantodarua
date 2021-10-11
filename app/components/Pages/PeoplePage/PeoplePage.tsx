@@ -21,6 +21,8 @@ import PersonCard from './PersonCard';
 import { useRouter } from 'next/router';
 import ReceptionModal from '#/components/ReceptionModal';
 import ReceptionService from '#/services/ReceptionService';
+import moment, { Moment } from 'moment';
+import { ReceptionModalDate } from '#/types/ReceptionModalData';
 
 const Container = styled(MuiContainer)`
   && {
@@ -94,12 +96,19 @@ const PeoplePage = (): ReactElement => {
 
   const [todayEntrances, setTodayEntrances] = useState<number | null>();
   const [todayRegisters, setTodayRegisters] = useState<number | null>();
-  const [openReceptionModal, setOpenReceptionModal] = useState<boolean>(false);
+  /*const [openReceptionModal, setOpenReceptionModal] = useState<boolean>(false);
   const [
     personReceptionModal,
     setPersonReceptionModal,
   ] = useState<BasePerson | null>(null);
+  const [callBackReceptionModal, setCallBackReceptionModal] = useState<{
+    callback: (arg0: Moment) => void;
+  } | null>();*/
 
+  const [
+    receptionModalDate,
+    setReceptionModalDate,
+  ] = useState<ReceptionModalDate | null>();
   const fetchPeople: InfiniteListFetchRows = (startIndex, limit, filter) =>
     PeopleService.get(startIndex, limit, filter);
 
@@ -112,20 +121,19 @@ const PeoplePage = (): ReactElement => {
   const onChangeFilter = (value?: string) =>
     setSelectedFilter({ nameOrCardNumber: value });
 
-  const addNewEntrance = (person: BasePerson) => {
-    setPersonReceptionModal(person);
-    setOpenReceptionModal(true);
+  const addNewEntrance = (
+    person: BasePerson,
+    callBack: (arg0: Moment) => void,
+  ) => {
+    setReceptionModalDate({
+      open: true,
+      person,
+      callBack,
+    });
   };
 
-  /*
-  const handleCloseConfirmationModal = () => {
-    setConfirmationModal({ ...confirmationModal, open: false });
-    document.getElementById('search-field')?.focus();
-  };*/
-
   const handleCloseReceptionModal = () => {
-    setPersonReceptionModal(null);
-    setOpenReceptionModal(false);
+    setReceptionModalDate(null);
     document.getElementById('search-field')?.focus();
   };
 
@@ -138,6 +146,7 @@ const PeoplePage = (): ReactElement => {
       if (status === 200) {
         fetchDashboardToday();
         handleCloseReceptionModal();
+        receptionModalDate?.callBack(date);
       } else {
         enqueueSnackbar('Ocorreu um erro ao confirmar uma recepção', {
           variant: 'error',
@@ -194,12 +203,11 @@ const PeoplePage = (): ReactElement => {
           />
         </ListWrapper>
       </ListContainer>
-
-      {openReceptionModal && (
+      {receptionModalDate && (
         <ReceptionModal
-          open={openReceptionModal}
+          open={receptionModalDate.open}
           handleClose={handleCloseReceptionModal}
-          person={personReceptionModal}
+          person={receptionModalDate.person}
           confirmReception={confirmReception}
         />
       )}
