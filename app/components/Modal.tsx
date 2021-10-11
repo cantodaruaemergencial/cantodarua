@@ -1,16 +1,15 @@
 import { ReactElement, ReactNode } from 'react';
 import {
-  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   IconButton,
-  makeStyles,
   Typography,
   Box,
 } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
+import styled from 'styled-components';
 
 interface Props {
   title: string;
@@ -18,21 +17,20 @@ interface Props {
   handleClose: () => void;
   actions?: ReactNode;
   content?: ReactNode;
-  width?: string;
 }
 
-const useStyles = makeStyles((width?: string) =>
-  createStyles({
-    textTitle: {
-      textAlign: 'center',
-    },
-    modal: {
-      width: width || '1000px',
-      padding: '8px 8px 18px 8px',
-      borderRadius: '6px',
-    },
-  }),
-);
+const DialogStyled = styled(Dialog)`
+  && {
+    padding: 8px 8px 18px 8px;
+    borderradius: 6px;
+  }
+`;
+
+const Title = styled(Typography)`
+  && {
+    text-align: center;
+  }
+`;
 
 const Modal = ({
   title = '',
@@ -40,17 +38,13 @@ const Modal = ({
   handleClose,
   actions,
   content,
-  width,
 }: Props): ReactElement => {
-  const styles = useStyles(width);
   return (
-    <Dialog open={open} onClose={handleClose} classes={{ paper: styles.modal }}>
+    <DialogStyled open={open} onClose={handleClose}>
       <DialogTitle>
         <Box display="flex" alignItems="center">
           <Box flexGrow={1}>
-            <Typography component="h2" variant="h3">
-              {title}
-            </Typography>
+            <Title variant="h3">{title}</Title>
           </Box>
           <Box>
             <IconButton onClick={handleClose}>
@@ -61,7 +55,7 @@ const Modal = ({
       </DialogTitle>
       {content && <DialogContent>{content}</DialogContent>}
       {actions && <DialogActions>{actions}</DialogActions>}
-    </Dialog>
+    </DialogStyled>
   );
 };
 
