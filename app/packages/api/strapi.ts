@@ -8,7 +8,7 @@ import { saveAs } from 'file-saver';
 const LOCAL_STORAGE_CREDENTIAL_KEY = 'strapi:credentials';
 
 const {
-  NEXT_PUBLIC_STRAPI_API_URL = 'https://api-dev.cantodarua.com.br',
+  NEXT_PUBLIC_STRAPI_API_URL = 'https://api-dev2-7dg574osfa-ue.a.run.app',
 } = process.env;
 
 export function getUserProfile(): UserProfile | null {

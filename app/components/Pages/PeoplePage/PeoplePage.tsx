@@ -1,10 +1,8 @@
 import Card from '#/components/Card';
-import ConfirmationModal from '#/components/ConfirmationModal';
 import SearchField from '#/components/SearchField';
 import EntrancesService from '#/services/EntrancesService';
+import DashboardService from '#/services/DashboardService';
 import PeopleService from '#/services/PeopleService';
-import { ConfirmationModal as ConfirmationModalType } from '#/types/ConfirmationModal';
-import { Entrance } from '#/types/Entrance';
 import { BasePerson } from '#/types/People';
 import { Shadows } from '#/utils/theme';
 import { Box, Button, Container as MuiContainer } from '@material-ui/core';
@@ -22,6 +20,10 @@ import PageHeader from '../../PageHeader';
 import PersonCard from './PersonCard';
 import { useRouter } from 'next/router';
 import { InitiativesContext } from '#/contexts/InitiativesContext';
+import ReceptionModal from '#/components/ReceptionModal';
+import ReceptionService from '#/services/ReceptionService';
+import moment, { Moment } from 'moment';
+import { ReceptionModalDate } from '#/types/ReceptionModalData';
 
 const Container = styled(MuiContainer)`
   && {
@@ -96,13 +98,9 @@ const PeoplePage = (): ReactElement => {
   const { choosenInitiative } = useContext(InitiativesContext);
 
   const [
-    confirmationModal,
-    setConfirmationModal,
-  ] = useState<ConfirmationModalType>({
-    title: 'Confirmar entrada',
-    open: false,
-  });
-
+    receptionModalDate,
+    setReceptionModalDate,
+  ] = useState<ReceptionModalDate | null>();
   const fetchPeople: InfiniteListFetchRows = (startIndex, limit, filter) =>
     PeopleService.get(startIndex, limit, filter);
 
@@ -121,42 +119,36 @@ const PeoplePage = (): ReactElement => {
 
   const addNewEntrance = (
     person: BasePerson,
-    callback: (entrance: Entrance) => void,
+    callBack: (arg0: Moment) => void,
   ) => {
-    const message = `Deseja confirmar a entrada de **${person.Name} (${person.CardNumber})**?`;
-
-    setConfirmationModal({
-      ...confirmationModal,
-      data: {
-        person,
-        callback,
-      },
-      message,
+    setReceptionModalDate({
       open: true,
+      person,
+      callBack,
     });
   };
 
-  const handleCloseConfirmationModal = () => {
-    setConfirmationModal({ ...confirmationModal, open: false });
+  const handleCloseReceptionModal = () => {
+    setReceptionModalDate(null);
     document.getElementById('search-field')?.focus();
   };
 
-  const confirmEntrance = () => {
-    setIsWaitingRequest(true);
-    EntrancesService.post(confirmationModal.data.person).then(
-      ({ status, data }) => {
-        if (status === 200) {
-          handleCloseConfirmationModal();
-          confirmationModal.data.callback(data);
-          setIsWaitingRequest(false);
-        } else {
-          enqueueSnackbar('Ocorreu um erro ao confirmar a entrada.', {
-            variant: 'error',
-          });
-          setIsWaitingRequest(false);
-        }
-      },
-    );
+  const confirmReception = (
+    person: BasePerson,
+    date: moment.Moment,
+    observation: string,
+  ) => {
+    ReceptionService.post(person, date, observation).then(({ status }) => {
+      if (status === 200) {
+        // fetchDashboardToday();
+        handleCloseReceptionModal();
+        receptionModalDate?.callBack(date);
+      } else {
+        enqueueSnackbar('Ocorreu um erro ao confirmar uma recepção', {
+          variant: 'error',
+        });
+      }
+    });
   };
 
   const renderControls = () => (
@@ -191,20 +183,14 @@ const PeoplePage = (): ReactElement => {
           />
         </ListWrapper>
       </ListContainer>
-      <ConfirmationModal
-        {...confirmationModal}
-        handleClose={handleCloseConfirmationModal}
-        actions={
-          <Button
-            autoFocus
-            onClick={confirmEntrance}
-            color="primary"
-            disabled={isWaitingRequest}
-          >
-            Confirmar
-          </Button>
-        }
-      />
+      {receptionModalDate && (
+        <ReceptionModal
+          open={receptionModalDate.open}
+          handleClose={handleCloseReceptionModal}
+          person={receptionModalDate.person}
+          confirmReception={confirmReception}
+        />
+      )}
     </Container>
   );
 };
