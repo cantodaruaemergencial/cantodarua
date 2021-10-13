@@ -3,8 +3,8 @@ import { FetchInitiatives, Initiative } from '#/types/Initiatives';
 import { createContext, ReactNode, useEffect, useState } from 'react';
 
 interface InitiativesData {
-  choosenInitiative: string | undefined;
-  setChoosenInitiative: (value: string | undefined) => void;
+  choosenInitiative: Initiative | undefined;
+  setChoosenInitiative: (value: Initiative | undefined) => void;
   allInitiatives: Initiative[];
 }
 
@@ -16,7 +16,7 @@ export const InitiativesContext = createContext({} as InitiativesData);
 
 export function InitiativesProvider({ children }: InitiativesProviderProps) {
   const [selectedInitiative, setSelectedInitiative] = useState<
-    string | undefined
+    Initiative | undefined
   >(undefined);
 
   const [allInitiatives, setAllInitiaves] = useState<Initiative[] | []>([]);

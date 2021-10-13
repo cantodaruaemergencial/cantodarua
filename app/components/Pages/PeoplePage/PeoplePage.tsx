@@ -1,7 +1,5 @@
 import Card from '#/components/Card';
 import SearchField from '#/components/SearchField';
-import EntrancesService from '#/services/EntrancesService';
-import DashboardService from '#/services/DashboardService';
 import PeopleService from '#/services/PeopleService';
 import { BasePerson } from '#/types/People';
 import { Shadows } from '#/utils/theme';
@@ -24,6 +22,7 @@ import ReceptionModal from '#/components/ReceptionModal';
 import ReceptionService from '#/services/ReceptionService';
 import moment, { Moment } from 'moment';
 import { ReceptionModalDate } from '#/types/ReceptionModalData';
+import { Initiative } from '#/types/Initiatives';
 
 const Container = styled(MuiContainer)`
   && {
@@ -88,12 +87,10 @@ const PeoplePage = (): ReactElement => {
     () =>
       setSelectedFilter({
         nameOrCardNumber: route.query.q as string,
-        initiativeName: choosenInitiative,
+        initiativeName: choosenInitiative?.InitiativeName,
       }),
     [],
   );
-
-  const [isWaitingRequest, setIsWaitingRequest] = useState(false);
 
   const { choosenInitiative } = useContext(InitiativesContext);
 
@@ -107,13 +104,13 @@ const PeoplePage = (): ReactElement => {
   const onChangeFilter = (value?: string) =>
     setSelectedFilter({
       nameOrCardNumber: value,
-      initiativeName: choosenInitiative,
+      initiativeName: choosenInitiative?.InitiativeName,
     });
 
   useEffect(() => {
     setSelectedFilter({
       ...selectedFilter,
-      initiativeName: choosenInitiative,
+      initiativeName: choosenInitiative?.InitiativeName,
     });
   }, [choosenInitiative]);
 
@@ -135,20 +132,23 @@ const PeoplePage = (): ReactElement => {
 
   const confirmReception = (
     person: BasePerson,
+    initiative: Initiative | undefined,
     date: moment.Moment,
     observation: string,
   ) => {
-    ReceptionService.post(person, date, observation).then(({ status }) => {
-      if (status === 200) {
-        // fetchDashboardToday();
-        handleCloseReceptionModal();
-        receptionModalDate?.callBack(date);
-      } else {
-        enqueueSnackbar('Ocorreu um erro ao confirmar uma recepção', {
-          variant: 'error',
-        });
-      }
-    });
+    ReceptionService.post(person, initiative, date, observation).then(
+      ({ status }) => {
+        if (status === 200) {
+          // fetchDashboardToday();
+          handleCloseReceptionModal();
+          receptionModalDate?.callBack(date);
+        } else {
+          enqueueSnackbar('Ocorreu um erro ao confirmar uma recepção', {
+            variant: 'error',
+          });
+        }
+      },
+    );
   };
 
   const renderControls = () => (

@@ -101,7 +101,7 @@ const ButtonAppBar = (): React.ReactElement => {
       personName: null,
       initiativeName: allInitiatives[0]?.InitiativeName,
     });
-    setChoosenInitiative(allInitiatives[0]?.InitiativeName);
+    setChoosenInitiative(allInitiatives[0]);
   }, [allInitiatives]);
 
   const handleChooseInitiative = (event: string | null) => {
@@ -110,7 +110,9 @@ const ButtonAppBar = (): React.ReactElement => {
         personName: null,
         initiativeName: event,
       });
-      setChoosenInitiative(event);
+      setChoosenInitiative(
+        allInitiatives.find((item) => item.InitiativeName === event),
+      );
     } else {
       setChoosenInitiative(undefined);
     }
@@ -136,7 +138,7 @@ const ButtonAppBar = (): React.ReactElement => {
         <AutocompleteInput
           label="Nome iniciativa"
           options={allInitiatives.map((item) => item.InitiativeName)}
-          value={choosenInitiative}
+          value={choosenInitiative?.InitiativeName}
           onChange={handleChooseInitiative}
         />
       </Toolbar>

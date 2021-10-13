@@ -1,5 +1,5 @@
 import Modal from './Modal';
-import { ReactElement, useState } from 'react';
+import { ReactElement, useContext, useState } from 'react';
 import {
   Button,
   createStyles,
@@ -13,6 +13,8 @@ import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 import moment from 'moment';
 import { BasePerson } from '#/types/People';
 import styled from 'styled-components';
+import { InitiativesContext } from '#/contexts/InitiativesContext';
+import { Initiative } from '#/types/Initiatives';
 
 interface Props {
   open: boolean;
@@ -20,6 +22,7 @@ interface Props {
   handleClose: () => void;
   confirmReception: (
     person: BasePerson,
+    initiative: Initiative | undefined,
     selectedDate: moment.Moment,
     description: string,
   ) => void;
@@ -59,6 +62,8 @@ const ReceptionModal = ({
   );
   const [dateMax] = useState<MaterialUiPickersDate>(moment());
   const [observation, setObservation] = useState<string>('');
+
+  const { choosenInitiative } = useContext(InitiativesContext);
   const styles = useStyles();
 
   const selectDateNotIsValid = Boolean(
@@ -110,7 +115,12 @@ const ReceptionModal = ({
     <Button
       onClick={() => {
         if (person !== null && selectedDate !== null)
-          confirmReception(person, selectedDate, observation);
+          confirmReception(
+            person,
+            choosenInitiative,
+            selectedDate,
+            observation,
+          );
       }}
       variant="outlined"
       disabled={selectDateNotIsValid}
