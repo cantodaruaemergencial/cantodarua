@@ -8,18 +8,23 @@ on:
     paths:
       - "app/**"
       - ".github/workflows/app.yml"
-      - ".github/workflows/app-firebase.yml"
-
+      
 jobs:
   build_and_preview:
     if: endsWith(github.ref, '/dev')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - run: |
-        echo "NEXT_PUBLIC_STRAPI_API_URL=https://api-dev2-7dg574osfa-ue.a.run.app" >> "$GITHUB_ENV" 
-        yarn && yarn build
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+      - name: set env to dev
+        if: endsWith(github.ref, '/dev')
+        run: echo "NEXT_PUBLIC_STRAPI_API_URL=https://api-dev2-7dg574osfa-ue.a.run.app" >> "$GITHUB_ENV"
+    
+      - name: build 
+        uses: actions/checkout@v2
+        run: yarn && yarn build
+    
+      - name: deploy dev
+        if: endsWith(github.ref, '/dev')
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_CANTODARUA_DEV }}'
