@@ -10,8 +10,7 @@ on:
       - '.github/workflows/app.yml'
       
 jobs:
-  build_and_preview:
-    if: endsWith(github.ref, '/dev')
+  build_and_deploy:
     runs-on: ubuntu-latest
     steps:
       - name: set env to dev
@@ -34,7 +33,7 @@ jobs:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_CANTODARUA_DEV }}'
           projectId: cantodarua-dev
-          channelId: preview
+          channelId: live
           entrypoint: app
 
       - name: deploy main
@@ -44,5 +43,5 @@ jobs:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_CANTODARUA }}'
           projectId: cantodarua
-          channelId: preview
+          channelId: live
           entrypoint: app
