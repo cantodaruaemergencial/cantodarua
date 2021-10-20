@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v2
         
       - name: build 
-        run: yarn && yarn build
+        run: cd app && yarn && yarn build
     
       - name: deploy dev
         if: endsWith(github.ref, '/dev')
