@@ -6,8 +6,8 @@ on:
       - dev
       - main
     paths:
-      - "app/**"
-      - ".github/workflows/app.yml"
+      - 'app/**'
+      - '.github/workflows/app.yml'
       
 jobs:
   build_and_preview:

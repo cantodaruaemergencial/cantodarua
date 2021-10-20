@@ -23,7 +23,7 @@ jobs:
         if: endsWith(github.ref, '/dev')
         run: |
           echo "SERVICE_NAME=api-dev2" >> "$GITHUB_ENV"
-      - name: Set env to production
+      - name: Set env to main
         if: endsWith(github.ref, '/main')
         run: |
           echo "SERVICE_NAME=api2" >> "$GITHUB_ENV"
