@@ -18,8 +18,9 @@ jobs:
         if: endsWith(github.ref, '/dev')
         run: echo "NEXT_PUBLIC_STRAPI_API_URL=https://api-dev2-7dg574osfa-ue.a.run.app" >> "$GITHUB_ENV"
     
+      - uses: actions/checkout@v2
+        
       - name: build 
-        uses: actions/checkout@v2
         run: yarn && yarn build
     
       - name: deploy dev
