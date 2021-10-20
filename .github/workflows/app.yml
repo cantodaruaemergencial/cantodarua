@@ -18,6 +18,10 @@ jobs:
         if: endsWith(github.ref, '/dev')
         run: echo "NEXT_PUBLIC_STRAPI_API_URL=https://api-dev2-7dg574osfa-ue.a.run.app" >> "$GITHUB_ENV"
     
+      - name: set env to main
+        if: endsWith(github.ref, '/main')
+        run: echo "NEXT_PUBLIC_STRAPI_API_URL=https://api2-7dg574osfa-ue.a.run.app" >> "$GITHUB_ENV"
+
       - uses: actions/checkout@v2
         
       - name: build 
@@ -30,5 +34,15 @@ jobs:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_CANTODARUA_DEV }}'
           projectId: cantodarua-dev
+          channelId: preview
+          entrypoint: app
+
+      - name: deploy main
+        if: endsWith(github.ref, '/main')
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_CANTODARUA }}'
+          projectId: cantodarua
           channelId: preview
           entrypoint: app
