@@ -4,53 +4,44 @@ on:
   push:
     branches:
       - dev
-      # - main
+      - main
     paths:
-      - "app/**"
-      - ".github/workflows/app.yml"
-
-env:
-  PROJECT_ID: ${{ secrets.PROJECT_ID }}
-  RUN_REGION: us-east1
-
+      - 'app/**'
+      - '.github/workflows/app.yml'
+      
 jobs:
-  setup-build-deploy:
-    name: build and deploy
+  build_and_deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: set env to dev
         if: endsWith(github.ref, '/dev')
-        run: |
-          echo "SERVICE_NAME=app-dev2" >> "$GITHUB_ENV"
-          echo "NEXT_PUBLIC_STRAPI_API_URL=https://api-dev.cantodarua.com.br" >> "$GITHUB_ENV"
-      - name: set env to production
+        run: echo "NEXT_PUBLIC_STRAPI_API_URL=https://api-dev2-7dg574osfa-ue.a.run.app" >> "$GITHUB_ENV"
+    
+      - name: set env to main
         if: endsWith(github.ref, '/main')
-        run: |
-          echo "SERVICE_NAME=app" >> "$GITHUB_ENV"
-          echo "NEXT_PUBLIC_STRAPI_API_URL=https://api.cantodarua.com.br" >> "$GITHUB_ENV"
-      - name: checkout
-        uses: actions/checkout@v1
+        run: echo "NEXT_PUBLIC_STRAPI_API_URL=https://api2-7dg574osfa-ue.a.run.app" >> "$GITHUB_ENV"
 
-      - uses: google-github-actions/setup-gcloud@master
+      - uses: actions/checkout@v2
+        
+      - name: build 
+        run: cd app && yarn && yarn build
+    
+      - name: deploy dev
+        if: endsWith(github.ref, '/dev')
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          version: "275.0.0"
-          service_account_email: ${{ secrets.SA_EMAIL }}
-          service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS}}
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_CANTODARUA_DEV }}'
+          projectId: cantodarua-dev
+          channelId: live
+          entrypoint: app
 
-      - name: gcloud Set up
-        run: |
-          gcloud config set project $PROJECT_ID
-
-      - name: build
-        run: |
-          cd app
-          gcloud builds submit --config=build.yaml \
-            --substitutions=_NEXT_PUBLIC_STRAPI_API_URL=$NEXT_PUBLIC_STRAPI_API_URL,_PROJECT_ID=$PROJECT_ID,_SERVICE_NAME=$SERVICE_NAME,_GITHUB_SHA=$GITHUB_SHA
-
-      - name: deploy
-        run: |
-          gcloud run deploy $SERVICE_NAME \
-            --region $RUN_REGION \
-            --image gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA \
-            --platform managed
+      - name: deploy main
+        if: endsWith(github.ref, '/main')
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_CANTODARUA }}'
+          projectId: cantodarua
+          channelId: live
+          entrypoint: app

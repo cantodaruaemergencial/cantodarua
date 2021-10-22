@@ -4,12 +4,11 @@ on:
   push:
     branches:
       - dev
-      # - main
+      - main
     paths:
       - 'api/**'
       - '.github/workflows/api.yml'
-      
-
+ 
 env:
   PROJECT_ID: ${{ secrets.PROJECT_ID }}
   RUN_REGION: us-east1
@@ -24,10 +23,10 @@ jobs:
         if: endsWith(github.ref, '/dev')
         run: |
           echo "SERVICE_NAME=api-dev2" >> "$GITHUB_ENV"
-      - name: Set env to production
+      - name: Set env to main
         if: endsWith(github.ref, '/main')
         run: |
-          echo "SERVICE_NAME=api" >> "$GITHUB_ENV"
+          echo "SERVICE_NAME=api2" >> "$GITHUB_ENV"
 
       - name: Checkout
         uses: actions/checkout@v1
