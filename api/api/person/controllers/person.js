@@ -47,7 +47,7 @@ module.exports = {
 		);
 
 		ctx.send(result[0]);
-	},
+	},  
 
 	async create(ctx) {
 		const knex = strapi.connections.default;
