@@ -1,11 +1,6 @@
 import Card from '#/components/Card';
-import ConfirmationModal from '#/components/ConfirmationModal';
 import SearchField from '#/components/SearchField';
-import DashboardService from '#/services/DashboardService';
-import EntrancesService from '#/services/EntrancesService';
 import PeopleService from '#/services/PeopleService';
-import { ConfirmationModal as ConfirmationModalType } from '#/types/ConfirmationModal';
-import { Entrance } from '#/types/Entrance';
 import { BasePerson } from '#/types/People';
 import { Shadows } from '#/utils/theme';
 import { Box, Button, Container as MuiContainer } from '@material-ui/core';
@@ -13,16 +8,21 @@ import { withTheme } from '@material-ui/core/styles';
 import { AddCircleRounded } from '@material-ui/icons';
 import Link from 'next/link';
 import { useSnackbar } from 'notistack';
-import { ReactElement, useEffect, useState } from 'react';
+import { ReactElement, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import InfiniteList, {
   InfiniteListFetchRows,
   InfiniteListRowRenderer,
 } from '../../InfiniteList';
 import PageHeader from '../../PageHeader';
-import Value from './../../Value';
 import PersonCard from './PersonCard';
 import { useRouter } from 'next/router';
+import { InitiativesContext } from '#/contexts/InitiativesContext';
+import ReceptionModal from '#/components/ReceptionModal';
+import ReceptionService from '#/services/ReceptionService';
+import moment, { Moment } from 'moment';
+import { ReceptionModalDate } from '#/types/ReceptionModalData';
+import { Initiative } from '#/types/Initiatives';
 
 const Container = styled(MuiContainer)`
   && {
@@ -59,10 +59,6 @@ const List = styled(InfiniteList)`
   flex: 1;
 `;
 
-const DashboardToday = styled(Value)`
-  margin-left: 1rem;
-`;
-
 const SearchBar = styled(Box)`
   display: flex;
   justify-content: space-between;
@@ -84,76 +80,72 @@ const PeoplePage = (): ReactElement => {
 
   const [selectedFilter, setSelectedFilter] = useState<{
     nameOrCardNumber?: string | null;
+    initiativeName?: string | null;
   }>({});
 
   useEffect(
     () =>
       setSelectedFilter({
         nameOrCardNumber: route.query.q as string,
+        initiativeName: choosenInitiative?.InitiativeName,
       }),
     [],
   );
 
-  const [todayEntrances, setTodayEntrances] = useState<number | null>();
-  const [todayRegisters, setTodayRegisters] = useState<number | null>();
-  const [isWaitingRequest, setIsWaitingRequest] = useState(false);
+  const { choosenInitiative } = useContext(InitiativesContext);
 
   const [
-    confirmationModal,
-    setConfirmationModal,
-  ] = useState<ConfirmationModalType>({
-    title: 'Confirmar entrada',
-    open: false,
-  });
-
+    receptionModalDate,
+    setReceptionModalDate,
+  ] = useState<ReceptionModalDate | null>();
   const fetchPeople: InfiniteListFetchRows = (startIndex, limit, filter) =>
     PeopleService.get(startIndex, limit, filter);
 
-  const fetchDashboardToday = () =>
-    DashboardService.getToday().then(({ entrances, registers }) => {
-      setTodayEntrances(entrances);
-      setTodayRegisters(registers);
+  const onChangeFilter = (value?: string) =>
+    setSelectedFilter({
+      nameOrCardNumber: value,
+      initiativeName: choosenInitiative?.InitiativeName,
     });
 
-  const onChangeFilter = (value?: string) =>
-    setSelectedFilter({ nameOrCardNumber: value });
+  useEffect(() => {
+    setSelectedFilter({
+      ...selectedFilter,
+      initiativeName: choosenInitiative?.InitiativeName,
+    });
+  }, [choosenInitiative]);
 
   const addNewEntrance = (
     person: BasePerson,
-    callback: (entrance: Entrance) => void,
+    callBack: (arg0: Moment) => void,
   ) => {
-    const message = `Deseja confirmar a entrada de **${person.Name} (${person.CardNumber})**?`;
-
-    setConfirmationModal({
-      ...confirmationModal,
-      data: {
-        person,
-        callback,
-      },
-      message,
+    setReceptionModalDate({
       open: true,
+      person,
+      callBack,
     });
   };
 
-  const handleCloseConfirmationModal = () => {
-    setConfirmationModal({ ...confirmationModal, open: false });
+  const handleCloseReceptionModal = () => {
+    setReceptionModalDate(null);
     document.getElementById('search-field')?.focus();
   };
 
-  const confirmEntrance = () => {
-    setIsWaitingRequest(true);
-    EntrancesService.post(confirmationModal.data.person).then(
-      ({ status, data }) => {
+  const confirmReception = (
+    person: BasePerson,
+    initiative: Initiative | undefined,
+    date: moment.Moment,
+    observation: string,
+  ) => {
+    ReceptionService.post(person, initiative, date, observation).then(
+      ({ status }) => {
         if (status === 200) {
-          handleCloseConfirmationModal();
-          confirmationModal.data.callback(data);
-          fetchDashboardToday();
-          setIsWaitingRequest(false);
+          // fetchDashboardToday();
+          handleCloseReceptionModal();
+          receptionModalDate?.callBack(date);
         } else {
-          enqueueSnackbar('Ocorreu um erro ao confirmar a entrada.', {
+          enqueueSnackbar('Ocorreu um erro ao confirmar uma recepção', {
             variant: 'error',
           });
-          setIsWaitingRequest(false);
         }
       },
     );
@@ -166,10 +158,6 @@ const PeoplePage = (): ReactElement => {
       </AddNew>
     </Link>
   );
-
-  useEffect(() => {
-    fetchDashboardToday();
-  }, []);
 
   const rowRenderer: InfiniteListRowRenderer = (item, isRowLoaded, props) => (
     <PersonCard
@@ -186,18 +174,6 @@ const PeoplePage = (): ReactElement => {
       <ListContainer>
         <SearchBar>
           <Search placeholder="Nome ou cartão" onFilter={onChangeFilter} />
-          <DashboardToday
-            value={todayEntrances != null ? todayEntrances : '-'}
-            label="entradas hoje"
-            medium
-            alignRight
-          />
-          <DashboardToday
-            value={todayRegisters != null ? todayRegisters : '-'}
-            label="cadastros hoje"
-            medium
-            alignRight
-          />
         </SearchBar>
         <ListWrapper>
           <List
@@ -207,20 +183,14 @@ const PeoplePage = (): ReactElement => {
           />
         </ListWrapper>
       </ListContainer>
-      <ConfirmationModal
-        {...confirmationModal}
-        handleClose={handleCloseConfirmationModal}
-        actions={
-          <Button
-            autoFocus
-            onClick={confirmEntrance}
-            color="primary"
-            disabled={isWaitingRequest}
-          >
-            Confirmar
-          </Button>
-        }
-      />
+      {receptionModalDate && (
+        <ReceptionModal
+          open={receptionModalDate.open}
+          handleClose={handleCloseReceptionModal}
+          person={receptionModalDate.person}
+          confirmReception={confirmReception}
+        />
+      )}
     </Container>
   );
 };

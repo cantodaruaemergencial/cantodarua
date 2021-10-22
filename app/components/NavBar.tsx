@@ -7,16 +7,16 @@ import {
   IconButton,
   withTheme,
 } from '@material-ui/core';
-import {
-  DashboardRounded,
-  ExitToAppRounded,
-  PersonRounded,
-  TransferWithinAStationRounded,
-} from '@material-ui/icons';
+import AutocompleteInput from '#/components/AutocompleteInput';
+import { ExitToAppRounded, PersonRounded } from '@material-ui/icons';
 import Link from 'next/link';
 import styled from 'styled-components';
 
 import { useAuthMethods } from '#/packages/auth/auth-context';
+import { useContext, useEffect } from 'react';
+import { InfiniteListFetchRows } from './InfiniteList';
+import PeopleService from '#/services/PeopleService';
+import { InitiativesContext } from '#/contexts/InitiativesContext';
 
 const Logo = withTheme(styled(Avatar)`
   && {
@@ -35,9 +35,12 @@ const Toolbar = styled(Container)`
   && {
     padding-top: 1.5rem;
     padding-bottom: 1.5rem;
-    justify-content: space-between;
     align-items: center;
     display: flex;
+  }
+
+  @media (max-width: 600px) {
+    justify-content: flex-start;
   }
 `;
 
@@ -84,22 +87,44 @@ const Flag = withTheme(styled.img`
 const ButtonAppBar = (): React.ReactElement => {
   const { logout } = useAuthMethods();
 
+  const {
+    setChoosenInitiative,
+    choosenInitiative,
+    allInitiatives,
+  } = useContext(InitiativesContext);
+
+  const fetchPeople: InfiniteListFetchRows = (startIndex, limit, filter) =>
+    PeopleService.get(startIndex, limit, filter);
+
+  useEffect(() => {
+    fetchPeople(0, 7, {
+      personName: null,
+      initiativeName: allInitiatives[0]?.InitiativeName,
+    });
+    setChoosenInitiative(allInitiatives[0]);
+  }, [allInitiatives]);
+
+  const handleChooseInitiative = (event: string | null) => {
+    if (event) {
+      fetchPeople(0, 7, {
+        personName: null,
+        initiativeName: event,
+      });
+      setChoosenInitiative(
+        allInitiatives.find((item) => item.InitiativeName === event),
+      );
+    } else {
+      setChoosenInitiative(undefined);
+    }
+  };
+
   return (
     <AppBar position="static" color="default">
       <Toolbar>
         <Links>
-          <Link href="/dashboard">
+          <Link href="/pessoas">
             <Logo alt="Canto da Rua" src="/images/logo.png" />
           </Link>
-
-          <NavIconButton>
-            <Link href="/dashboard">
-              <DashboardRounded />
-            </Link>
-          </NavIconButton>
-          <NavButton>
-            <Link href="/dashboard">Dashboard</Link>
-          </NavButton>
 
           <NavIconButton>
             <Link href="/pessoas">
@@ -109,25 +134,13 @@ const ButtonAppBar = (): React.ReactElement => {
           <NavButton>
             <Link href="/pessoas">Pessoas</Link>
           </NavButton>
-
-          <NavIconButton>
-            <Link href="/servicos">
-              <TransferWithinAStationRounded />
-            </Link>
-          </NavIconButton>
-          <NavButton>
-            <Link href="/servicos">Serviços</Link>
-          </NavButton>
-
-          <NavIconButton>
-            <Link href="/relatorios">
-              <TransferWithinAStationRounded />
-            </Link>
-          </NavIconButton>
-          <NavButton>
-            <Link href="/relatorios">Relatórios</Link>
-          </NavButton>
         </Links>
+        <AutocompleteInput
+          label="Nome iniciativa"
+          options={allInitiatives.map((item) => item.InitiativeName)}
+          value={choosenInitiative?.InitiativeName}
+          onChange={handleChooseInitiative}
+        />
       </Toolbar>
       <FloatingBox>
         <NavIconButton onClick={logout}>

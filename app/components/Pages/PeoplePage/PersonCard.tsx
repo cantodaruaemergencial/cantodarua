@@ -1,18 +1,13 @@
 import Chip from '#/components/Chip';
 import { Color } from '#/types/Color';
-import { Entrance } from '#/types/Entrance';
-import { BasePerson } from '#/types/People';
-import { Person } from '#/types/People';
+import { BasePerson, Person } from '#/types/People';
+import { Box, Button, Typography, withTheme, Tooltip } from '@material-ui/core';
 import {
-  Box,
-  Button,
-  Typography,
-  withTheme,
-  Tooltip
-} from '@material-ui/core';
-import { AddCircleRounded, InfoRounded, PanToolRounded } from '@material-ui/icons';
+  AddCircleRounded,
+  InfoRounded,
+  PanToolRounded,
+} from '@material-ui/icons';
 import { Skeleton } from '@material-ui/lab';
-import moment from 'moment';
 import Link from 'next/link';
 import { ReactElement, useState } from 'react';
 import { ListRowProps } from 'react-virtualized';
@@ -20,6 +15,7 @@ import styled from 'styled-components';
 import TheTag from './../../Tag';
 import PersonCardModal from '#/components/PersonCardModal';
 import PeopleService from '#/services/PeopleService';
+import moment, { Moment } from 'moment';
 
 const PersonWrapper = styled(Box)`
   flex: 0 0 auto;
@@ -101,7 +97,7 @@ interface Props {
   props: ListRowProps;
   addNewEntrance: (
     person: BasePerson,
-    callback: (entrance: Entrance) => void,
+    callback: (dateReception: Moment) => void,
   ) => void;
 }
 
@@ -132,32 +128,36 @@ const PersonCard = ({
 
   if (!isRowLoaded) return renderSkeleton();
 
-  const { Id, Preferential, Name, SocialName, CardNumber, EnteredToday, LastEntranceDate } =
-    item;
+  const {
+    Id,
+    Preferential,
+    Name,
+    SocialName,
+    CardNumber,
+    LastEntranceDate,
+  } = item;
 
-  const [entrance, setEntrance] = useState({ LastEntranceDate, EnteredToday });
+  const [dateReception, setDateReception] = useState(LastEntranceDate);
+
+  const enteredToday =
+    dateReception?.format('DD/MM/YYYY') == moment().format('DD/MM/YYYY');
 
   const lastEntranceLabel = () => {
-    if (entrance.LastEntranceDate === null) return 'Nunca entrou';
-
-    const text = entrance.EnteredToday ? 'Entrou ' : 'Últ. vez ';
-
-    const fromText = moment(entrance.LastEntranceDate).fromNow();
-
+    if (dateReception === null) return 'Nunca entrou';
+    const text = enteredToday ? 'Entrou ' : 'Últ. vez ';
+    const fromText = moment(dateReception).fromNow();
     return text + fromText;
   };
 
   const getColor = () => {
-    if (entrance.EnteredToday) return Color.success;
-    if (entrance.LastEntranceDate !== null) return Color.info;
+    if (enteredToday) return Color.success;
+    if (dateReception !== null) return Color.info;
     return Color.disabled;
   };
 
-  const updateItem = (lastEntrance: Entrance) =>
-    setEntrance({
-      LastEntranceDate: lastEntrance.DateTime,
-      EnteredToday: true,
-    });
+  const updateItem = (newDateReception: Moment) => {
+    setDateReception(newDateReception);
+  };
 
   const [personModal, setPersonModal] = useState<{
     person: Person | null;
@@ -179,10 +179,11 @@ const PersonCard = ({
           <PersonInfo>
             <Link href={`/pessoas/cadastro/${Id}`}>
               <Title variant="body2">
-                {Preferential &&
-                  <Tooltip title='Preferencial'>
+                {Preferential && (
+                  <Tooltip title="Preferencial">
                     <PanToolRounded style={{ fill: 'rgb(76, 175, 80)' }} />
-                  </Tooltip>}
+                  </Tooltip>
+                )}
                 {Name}
               </Title>
             </Link>
@@ -192,18 +193,21 @@ const PersonCard = ({
           </PersonInfo>
         </Info>
         <Options>
-          <Chip label={lastEntranceLabel()}
+          <Chip
+            label={lastEntranceLabel()}
             color={getColor()}
-            tooltip={moment(entrance.LastEntranceDate).format('DD/MM/YYYY HH:mm').toString()}
+            tooltip={moment(dateReception)
+              .format('DD/MM/YYYY HH:mm')
+              .toString()}
           />
-          {!entrance.EnteredToday && (
+          {!enteredToday && (
             <Button
               variant="outlined"
               size="small"
               startIcon={<AddCircleRounded />}
               onClick={() => addNewEntrance(item, updateItem)}
             >
-              Entrada
+              Acolhimento
             </Button>
           )}
           <Button
@@ -224,7 +228,7 @@ const PersonCard = ({
         handleClose={handleClosePersonCardModal}
         newPerson={false}
       />
-    </PersonWrapper >
+    </PersonWrapper>
   );
 };
 

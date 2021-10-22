@@ -11,36 +11,38 @@ module.exports = {
   async find2(ctx) {
     const knex = strapi.connections.default;
 
-    const f = ctx.query.filter;
+    const personName = ctx.query.personName;
+    const initiativeName = ctx.query.initiativeName;
 
     const params = {
       limit: Number(ctx.query.limit),
       offset: Number(ctx.query.start),
-      filter: f ? "%" + f + "%" : "%",
-      numericFilter: f ? f : "0",
-      isFilter: f ? true : false,
-      isNumeric: /^\d+$/.test(f),
+      personName: personName ? "%" + personName + "%" : "%",
+      initiativeName: initiativeName ? "%" + initiativeName + "%" : "%",
+      numericFilter: personName ? personName : "0",
+      isFilter: personName ? true : false,
+      isNumeric: /^\d+$/.test(personName),
     };
 
     const result = await knex.raw(
       "select " +
-        "p.Id, p.Preferential, p.Name, p.SocialName, p.CardNumber, " +
-        "(select pe1.datetime from person_entrances pe1 where pe1.person = p.id order by pe1.datetime desc limit 1) as LastEntranceDate, " +
-        "least(cast((select count(1) from person_entrances pe2 where pe2.person = p.id and date(pe2.datetime) = date(now())) as unsigned),1) as EnteredToday, " +
-        "greatest(0, cast((select count(1) from person_entrances pe3 where pe3.person = p.id) as unsigned)) as Entrances " +
-        "from people p " +
-        "where ( " +
-        "(:isFilter = 0) or " +
-        "(:isFilter = 1 and :isNumeric = 1 and CardNumber like :numericFilter) or " +
-        "(:isFilter = 1 and :isNumeric = 0 and ( " +
-        "   Name like :filter " + 
-        "   or soundex(Name) like concat(soundex(:numericFilter), '%') " +
-        "   or SocialName like :filter " +
-        "   or soundex(SocialName) like concat(soundex(:numericFilter), '%') " +
-        ")) " +
-        ")" +
-        "order by cast(p.CardNumber as unsigned) " +
-        "limit :limit offset :offset;",
+      "p.Id, p.Preferential, p.Name, p.SocialName, p.CardNumber, " +
+      "(select receptions.receptionDate from receptions join initiatives on receptions.initiative = initiatives.id where receptions.person = p.id and initiatives.InitiativeName like :initiativeName order by receptions.receptionDate desc limit 1) as LastEntranceDate, " +
+      "least(cast((select count(1) from receptions right join initiatives on receptions.initiative = initiatives.id where receptions.person = p.id and date(receptions.receptionDate) = date(now()) and initiatives.InitiativeName like :initiativeName ) as unsigned),1) as EnteredToday, " +
+      "greatest(0, cast((select count(1) from receptions right join initiatives on receptions.initiative = initiatives.id where receptions.person = p.id) as unsigned)) as Entrances " +
+      "from people p " +
+      "where ( " +
+      "(:isFilter = 0) or " +
+      "(:isFilter = 1 and :isNumeric = 1 and CardNumber like :numericFilter) or " +
+      "(:isFilter = 1 and :isNumeric = 0 and ( " +
+      "   Name like :personName " +
+      "   or soundex(Name) like concat(soundex(:numericFilter), '%') " +
+      "   or SocialName like :personName " +
+      "   or soundex(SocialName) like concat(soundex(:numericFilter), '%') " +
+      ")) " +
+      ")" +
+      "order by cast(p.CardNumber as unsigned) " +
+      "limit :limit offset :offset;",
       params
     );
 
