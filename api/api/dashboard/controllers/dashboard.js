@@ -189,7 +189,7 @@ module.exports = {
     getQuery(
       ctx,
       "select (select count(1) from person_entrances p1 where date(p1.datetime) = date(now())) as entrances, " +
-        "(select count(1) from people p2 where date(p2.created_at) = date(now())) as registers; ",
+      "(select count(1) from people p2 where date(p2.created_at) = date(now())) as registers; ",
       false
     ),
 };
