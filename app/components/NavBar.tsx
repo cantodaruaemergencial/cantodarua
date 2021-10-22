@@ -132,6 +132,16 @@ const ButtonAppBar = (): React.ReactElement => {
           <NavButton>
             <Link href="/pessoas">Pessoas</Link>
           </NavButton>
+
+          <NavIconButton>
+            <Link href="/iniciativas">
+              <PersonRounded />
+            </Link>
+          </NavIconButton>
+          <NavButton>
+            <Link href="/iniciativas">Iniciativas</Link>
+          </NavButton>
+
         </Links>
         <AutocompleteInput
           label="Nome iniciativa"
