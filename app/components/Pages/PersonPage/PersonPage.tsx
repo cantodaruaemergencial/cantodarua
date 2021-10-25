@@ -5,9 +5,9 @@ import { Container as MuiContainer } from '@material-ui/core';
 import { useRouter } from 'next/dist/client/router';
 import React, { ReactElement, useState } from 'react';
 import styled from 'styled-components';
-import Form from '../Form/Form';
-import PageHeader from '../PageHeader';
-import PersonCardModal from '../PersonCardModal';
+import Form from '../../Form/Form';
+import PageHeader from '../../PageHeader';
+import PersonCardModal from '../../PersonCardModal';
 
 const Container = styled(MuiContainer)`
   && {

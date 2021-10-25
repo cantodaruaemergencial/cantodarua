@@ -1,5 +1,5 @@
 import Layout from '#/components/Layout';
-import PersonPage from '#/components/Pages/PersonPage';
+import PersonPage from '#/components/Pages/PersonPage/PersonPage';
 import PeopleService from '#/services/PeopleService';
 import { Form } from '#/types/Forms';
 import { useRouter } from 'next/router';
@@ -25,10 +25,7 @@ const NewPerson = () => {
 
   return (
     <Layout title="Cadastro - Canto da Rua">
-      <PersonPage
-        form={form}
-        personId={personId}
-      />
+      <PersonPage form={form} personId={personId} />
     </Layout>
   );
 };
