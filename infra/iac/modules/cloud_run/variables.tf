@@ -14,19 +14,6 @@ variable "image" {
   type = string
 }
 
-variable "url" {
-  type = string
-}
-
-variable "url2" {
-  type    = string
-  default = ""
-}
-
-variable "dns_managed_zone_name" {
-  type = string
-}
-
 variable "container_port" {
   type    = number
   default = 8080

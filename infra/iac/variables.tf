@@ -11,11 +11,3 @@ variable "zone" {
   type    = string
   default = "us-east1-d"
 }
-
-variable "dns_managed_zone_name" {
-  type    = string  
-}
-
-variable "dns_managed_zone_name_2" {
-  type    = string  
-}
