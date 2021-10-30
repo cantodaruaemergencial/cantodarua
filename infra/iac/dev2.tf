@@ -16,7 +16,7 @@ module "api_dev2" {
   project               = var.project
   region                = var.region
   name                  = "api-dev2"
-  image                 = "gcr.io/cloudrun/hello"
+  image                 = "gcr.io/cantodarua/api-dev2:latest"
   
   env_vars = [
     {
